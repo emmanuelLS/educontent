@@ -320,7 +320,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 			</select></td> 
 			
 			<td><h4>Rows</h4></td>
-			<td><input id = "test2" type="number" name="rows" min="2" max="12" step="1" value=""/></td>
+			<td><input id = "test2" type="number" name="rows" min="1" max="12" step="1" value=""/></td>
 			
 			</tr>
 			</tbody>
