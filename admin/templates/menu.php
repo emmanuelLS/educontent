@@ -575,17 +575,16 @@ $columns = array(
 <?php print_column_headers('list-header2'); ?>
   </tr>
   </thead>
-<tfoot>
+<tbody>
   <tr>
 <?php echo '
 		<td>Word</td>
 		<td><input type = "text" value="" name="word" ></td>
-		<td><input type="submit" value="Add Word" class="button button-primary" name="addword" />
-		'; ?>
+		<td><input type="submit" value="Add Word" class="button button-primary" name="addword" /></td>'; ?>
   </tr>
-  </tfoot>
-  <tbody>
-  <tbody>
+  </tbody>
+  <tfoot>
+ 
 <?php
 	if(isset($_POST["display"] ) ){ 
 		$title = $_POST['title_name'];
@@ -593,65 +592,46 @@ $columns = array(
 		$table_name = $wpdb->prefix . "word";	
 		
 global $wpdb;
-//$table_name = $wpdb->prefix . "word";	
+$table_name = $wpdb->prefix . "word";	
 $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = $title; ");	
 		foreach ( $word_data as $wrd_data )
 		{
-		echo '<tr>
-		<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
-		<td>' .$wrd_data->word .'</td>
-		<td><input type="submit" value="Edit" class="button button-primary" name="submit1" />
-			<input type="submit" value="Delete" class="button button-primary" name="submit1" /></td> 
-		</tr>';
+		echo '<tr>';
+		echo'<form method="POST">';
+		echo'<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>';
+		echo'<td>' .$wrd_data->word .'</td>';
+		echo'<td><input type="submit" value="Edit" class="button button-primary" name="submit1" />';
+		echo'&nbsp <input type="submit" value="Delete" class="button button-primary" name="delword" /></td>';
+		echo'<input type="hidden" name="id" value="'.$wrd_data->id.'">';
+		echo'</form></tr>';
+		}
 		}
 		
+		if(isset($_POST["delword"] )){
+		
+		global $wpdb;
+		$wordid = $_POST['id'];
+		//var_dump ("$wordid");
+		$wpdb->query("DELETE FROM wp_word WHERE id = '" . $wordid . "';");
+		
+		} 	
+		
 ?>
-  </tbody>
+	
+  </tfoot>
 </table>
  </div>
-	<?php  //EDIT/OMMIT THIS PART
-	}
-	echo '<br/>';
-	//echo '<input type="submit" value="Add Word" class="button button-primary" name="addword" /></p>';		
-		if(isset($_POST["display"] ) ){ 
-		$title = $_POST['title_name'];
-		$word = $_POST['word'];
-		$table_name = $wpdb->prefix . "word";	
-		$posts = $wpdb->get_results("SELECT id, word FROM wp_word WHERE title_id = $title ");
-		echo $posts->word;		
-		//echo '<br />';		
-	?>
-
-
+	
 <?php
-echo '<form method="post" action=""> ';	
-//echo 'Words for '.$title2->title .' ';
-echo '<table>';		
-		if(isset($_POST["delete"] )){
-		// $allCheckBoxId = $_POST['checkbox'];
-		global $wpdb;
-		$pw = $_POST['postwords'];
-		$id = count($pw);
-		 if (count($id) > 0)
-		  {
-			 foreach ($pw as $id_d)
-			 {
-				$wpdb->query("DELETE FROM wp_word WHERE id = $id_d ");
-			}
-		}
-		//$ids = implode(",", $allCheckBoxId);
-		//$wpdb->query("DELETE FROM wp_word WHERE id = $id_d ");	 	
-		} 	
-			
-echo '</table>'; 	
-		} 
-echo '</form> ';
-			
-?>
+		
 
+		
+		
+?>
+	
 </div>	
 </div>
-	<?php } ?>
+	<?php } ?> 
 
 
 <?php
