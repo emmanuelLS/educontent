@@ -1,3 +1,78 @@
+<style>
+.editbox
+{
+display:none
+}
+.editbox
+{
+font-size:14px;
+width:270px;
+background-color:#ffffcc;
+border:solid 1px #000;
+padding:4px;
+}
+.edit_tr:hover
+{
+background:url(edit.png) right no-repeat #80C8E5;
+cursor:pointer;
+}
+</style>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+ <script type="text/javascript">
+ $(document).ready(function()
+ {
+ $(".edit_tr").click(function()
+ {
+ var ID=$(this).attr('id');
+ $("#first_"+ID).hide();
+ $("#first_input_"+ID).show();
+ })
+ .change(function()
+ {
+ var ID=$(this).attr('id');
+ var first=$("#first_input_"+ID).val();
+ var dataString = 'id='+ID +'&word='+first;
+ $("#first_"+ID).html;
+ 
+ if(first.length>0)
+{
+
+$.ajax({
+type: "POST",
+url: "edittable_ajax.php",
+data: dataString,
+cache: false,
+success: function(html)
+{
+$("#first_"+ID).html(first);
+
+}
+});
+}
+else
+{
+alert('Enter something.');
+}
+
+});
+
+// Edit input box click action 
+$(".editbox").mouseup(function() 
+{
+return false
+});
+
+// Outside click action
+$(document).mouseup(function()
+{
+$(".editbox").hide();
+$(".text").show();
+});
+
+});
+ </script>
+
 <?php
 error_reporting(E_ERROR | E_PARSE);    // only major problems
  	function sandbox_theme_display( $active_tab = '' ) {  
@@ -243,23 +318,32 @@ $columns = array(
 
   <tbody>
 
- <?php
-global $wpdb;
+  <script>
+    function deleletconfig(){
 
-if(isset($_POST["delete1"] )){
+    var del=confirm("Are you sure you want to delete this record?");
+    if (del==true){
+       alert ("record deleted")
+    }
+    return del;
+    }
+</script>
+
+ <?php
+ 
+ global $wpdb;
+
+if(isset($_POST["deltitle"] )){
 		global $wpdb;
 		$pw1 = $_POST['id'];
 		if(count($pw1) > 0 ) {
 		$wpdb->query("DELETE FROM wp_title WHERE id = '" . $pw1 . "';");
-		//echo $pw1;
 		?>		
-		
-		<div class="updated"><p><strong><?php _e('Category Deleted.', 'menu-test' ); ?></strong></p></div>	 
-					
+						
 <?php
 }
 	}				
-elseif(isset($_POST['edit1']))
+if(isset($_POST['edit1']))
 {
 echo'<div id="showdiv" style="border:1px solid black; background-color:e0e0e0;padding:10px;">';
 echo'<h3>Edit here:</h3>';
@@ -314,7 +398,7 @@ $title_data = $wpdb->get_results( "SELECT id, category_id, title, sightwords FRO
 
 		<?php
 			echo'<input type="hidden" name="id" value="' .$tle_data->id .'" >';
-			echo'<input type="submit" value="Delete" class="button button-primary" name="delete1" />';
+			echo' <input type="submit" class="button button-primary" name="deltitle" onclick="return deleletconfig()" value="Delete">';
 			echo'<input type="hidden" name="id" value="' .$tle_data->id .'" /></form></td>';
 		
 		echo'</tr>';
@@ -577,10 +661,9 @@ $columns = array(
   </thead>
 <tbody>
   <tr>
-<?php echo '
-		<td>Word</td>
-		<td><input type = "text" value="" name="word" ></td>
-		<td><input type="submit" value="Add Word" class="button button-primary" name="addword" /></td>'; ?>
+<?php echo '<td>Word</td>';
+		echo'<td><input type = "text" value="" name="word" ></td>';
+		echo'<td><input type="submit" value="Add Word" class="button button-primary" name="addword" /></td>'; ?>
   </tr>
   </tbody>
   <tfoot>
@@ -596,37 +679,47 @@ $table_name = $wpdb->prefix . "word";
 $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = $title; ");	
 		foreach ( $word_data as $wrd_data )
 		{
-		echo '<tr>';
+		echo '<tr id="'.$wrd_data->id .'" class="edit_tr">';
 		echo'<form method="POST">';
 		echo'<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>';
-		echo'<td>' .$wrd_data->word .'</td>';
-		echo'<td><input type="submit" value="Edit" class="button button-primary" name="submit1" />';
-		echo'&nbsp <input type="submit" value="Delete" class="button button-primary" name="delword" /></td>';
+		
+		echo'<td class="edit_td"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>';
+		echo '<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>';
+		
+		
+		echo'<td> <input type="submit" value="Delete" class="button button-primary" name="delword" /></td>';
 		echo'<input type="hidden" name="id" value="'.$wrd_data->id.'">';
 		echo'</form></tr>';
 		}
 		}
 		
-		if(isset($_POST["delword"] )){
-		
-		global $wpdb;
-		$wordid = $_POST['id'];
-		//var_dump ("$wordid");
-		$wpdb->query("DELETE FROM wp_word WHERE id = '" . $wordid . "';");
-		
-		} 	
+			if(isset($_POST["delword"] )){
+			global $wpdb;
+			$wordid = $_POST['id'];
+			$wpdb->query("DELETE FROM wp_word WHERE id = '" . $wordid . "';");
+			
+			} 	
 		
 ?>
 	
   </tfoot>
 </table>
  </div>
-	
-<?php
-		
 
-		
-		
+ 
+ 
+<?php
+global $wpdb;
+if($_POST['id'])
+{
+
+$id=($_POST['id']);
+$word=($_POST['word']);
+$update_data = $wpdb->get_results("update wp_word set word='$word' where id='$id'");
+
+echo "update wp_word set word='$word' where id='$id'" ;
+echo $_POST['word'];
+}
 ?>
 	
 </div>	
