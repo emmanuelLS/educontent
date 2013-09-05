@@ -1,3 +1,21 @@
+<style>
+.editbox
+{
+display:none
+}
+td
+{
+padding:5px;
+}
+.editbox
+{
+font-size:14px;
+width:auto;
+border:solid 1px #000;
+padding:4px;
+}
+</style>
+
 <?php
 #error_reporting(E_ERROR | E_PARSE);    // only major problems
 function sandbox_theme_display( $active_tab = '' ) {  
@@ -248,17 +266,7 @@ $columns = array(
   </thead>
 
   <tbody>
-		<script>
-	       function deleletconfig(){
-
-		    var del=confirm("Are you sure you want to delete this record?");
-		    if (del==true){
-		       alert ("record deleted")
-		    }
-		    return del;
-		    }
-		 </script>
-
+	
  <?php
 global $wpdb;
 
@@ -267,6 +275,9 @@ if(isset($_POST["deltitle"] )){
 		$pw1 = $_POST['id'];
 		if(count($pw1) > 0 ) {
 		$wpdb->query("DELETE FROM wp_title WHERE id = '" . $pw1 . "';");
+		print "<script type=\"text/javascript\">"; 
+		print "alert('Record Deleted')"; 
+		print "</script>";  
 		//echo $pw1;
 		?>
 
@@ -330,7 +341,7 @@ $title_data = $wpdb->get_results( "SELECT id, category_id, title, sightwords FRO
 
 		<?php
 			echo'<input type="hidden" name="id" value="' .$tle_data->id .'" >';
-			echo'<input type="submit" class="button button-primary" name="deltitle" onclick="return deleletconfig()" value="Delete">';
+			echo'<input type="submit" class="button button-primary" name="deltitle" onclick="return confirm (\'Confirm Delete?\');" value="Delete">';
 			echo'<input type="hidden" name="id" value="' .$tle_data->id .'" /></form></td>';
 
 		echo'</tr>';
@@ -378,7 +389,7 @@ function examples_callback() {
         //var last=$("#last_input_"+ID).val();
         var dataString = 'id='+ID +'&catname='+first;
         //please send to me scroll-loder.gif - Heinz ito
-        $("#first_"+ID).html('<img src="scroll-loader.gif" width="30px" height="30px" />');
+        $("#first_"+ID).html('<img src="<?=plugins_url('scroll-loader.gif', __FILE__ )?>" width="30px" height="30px" />');
 
         if(first.length>0)
         {
@@ -413,23 +424,7 @@ function examples_callback() {
     });
 });
 </script>
-<style>
-.editbox
-{
-display:none
-}
-td
-{
-padding:5px;
-}
-.editbox
-{
-font-size:14px;
-width:auto;
-border:solid 1px #000;
-padding:4px;
-}
-</style>
+
 	<h3><a href="#">Add Category</a></h3>
 <div>
   <?php
@@ -517,23 +512,26 @@ $columns = array(
 
  <tbody>
 <?php
-/*global $wpdb;
-if(isset($_POST["deletes"] )){
+global $wpdb;
+if(isset($_POST["delcateg"] )){
 		global $wpdb;
 		$pw = $_POST['id'];
 		if(count($pw) > 0 ) {
 		$wpdb->query("DELETE FROM wp_categoryname WHERE id = '" . $pw . "';");
+		print "<script type=\"text/javascript\">"; 
+		print "alert('Record Deleted')"; 
+		print "</script>";  
               // echo ($sql);
 		//echo '<pre>';
 		//print_r($_POST);
 		//echo '</pre>';
 		//die();
 }
+}
 ?>
 
-<div class="updated"><p><strong><?php _e('Category Deleted.', 'menu-test' ); ?></strong></p></div>
-	<?php			*/
-if(isset($_POST["Edit"] )){
+<?php			
+/*if(isset($_POST["Edit"] )){
 	echo'<div id="showdiv" style="border:1px solid black; background-color:e0e0e0;padding:10px;">';
         echo'<h3>Edit here:</h3>';
         global $wpdb;
@@ -565,7 +563,7 @@ if(isset($_POST["Edit"] )){
 
         // echo ("$sql");
         mysql_query($sql) or die (mysql_error());
-}
+}*/
 
 global $wpdb;
 $sql = "SELECT * FROM wp_categoryname";
@@ -574,8 +572,8 @@ $res = mysql_query($sql) or die (mysql_error());
 while ($r = mysql_fetch_array ($res)){
 	echo '<tr id ="' .$r['id']. '" class="edit_tr">
 		<td><form method="post" action="">
-		<button onclick="return confirm(\'confirm delete?\');" class="button button-primary" name="deletes">Delete</button></form>
-		<input type="hidden" name="id" value="' . $r['id'] .'" /></td>
+		<input type="submit" class="button button-primary" name="delcateg" onclick="return confirm(\'Confirm Delete?\');" value="Delete">
+		<input type="hidden" name="id" value="' . $r['id'] .'" /></td></form>
 		<td class ="edit_td"><span id="first_'.$r['id'].'" class="text"><a style="text-decoration :none;color:#555555;" href="#" title="click to change">'. $r['category_name'] . '</a></span><input type="text" value ="' .$r['category_name']. '" class="editbox" id="first_input_'.$r['id'].'"/>
 		</td>
 		<td><input type="text" id="color_'.$r['id'].'" name="color" value="' . $r['template'] . '" class="wp-color-picker-field" data-default-color="#ffffff"/></td>
@@ -656,9 +654,12 @@ function sandbox_wordlist_examples_callback() {
 
 });
 </script>
-	<?php
-	echo '<form method="post" action=""> ';
 
+
+	<?php
+	
+	$titledata = isset( $_POST['title_name'] ) ? $_POST['title_name'] : 0 ;
+	echo '<form method="post" action=""> ';
 
   	global $wpdb;
   	$table_name = $wpdb->prefix . "title";
@@ -671,15 +672,14 @@ function sandbox_wordlist_examples_callback() {
 	//$slide_effect = (get_option('title_name') == $title_data->id ) ? 'selected' : '';
 	//echo '<option value="'.$title_data->id .'" >' .$title_data->title .'</option>';
 	//$check_last = $wpdb->get_results( "SELECT id, title FROM $table_name ORDER BY id DESC LIMIT 0,1; ");
-	//echo '<option value="'.$title_data->id .'" '.(($title_data->id==$check_last->id)? 'selected="selected"': '').' >' .$title_data->title .'</option>';
+	echo '<option value="'.$title_data->id .'" '.(($title_data->title==$check_last->title)? 'selected="selected"': '').' >' .$title_data->title .'</option>';
 	//echo '<option value="'.$title_data->id .'" >' .$title_data->title .'</option>';
-  	echo '<option value="'.$title_data->id .'" '.selected( $options['foo'], $title_data->id ) .' >' .$title_data->title .'</option>';
-
-
-
+	//echo '<option value="'.$title_data->id .'" '.selected( $options['foo'], $title_data->id ).'>' .$title_data->title .'</option>';	
+	
 	}
-	echo '</select>';
-
+  		echo '</select>';
+		
+	
 	echo '<input type="submit" value="display words" class="button button-primary" name="display"  > ';
 	echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 		if(isset($_POST["addword"] )&& $_POST["word"] != ''){
@@ -737,7 +737,7 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 		<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
 		<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
 <input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
-                <td><input type="submit" value="Delete" class="button button-primary" name="delword" /></td>
+                <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
 		<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
 		</form></tr>';
 
@@ -748,6 +748,9 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 		global $wpdb;
                 $wordid = $_POST['id'];
                 $wpdb->query("DELETE FROM wp_word WHERE id = '" . $wordid . "';");
+		print "<script type=\"text/javascript\">"; 
+		print "alert('Record Deleted')"; 
+		print "</script>";  
 
 }
 
