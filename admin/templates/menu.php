@@ -766,7 +766,7 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 		if ($_POST["word"] == '')  
 		{
 			print '<script type="text/javascript">'; 
-			print 'alert("No data")'; 
+			print 'alert("Please enter data.")'; 
 			print '</script>';
 		}
 		else{
