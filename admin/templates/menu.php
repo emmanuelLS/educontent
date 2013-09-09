@@ -1,22 +1,5 @@
-<style>
-.editbox
-{
-display:none
-}
-td
-{
-padding:5px;
-}
-.editbox
-{
-font-size:14px;
-width:auto;
-border:solid 1px #000;
-padding:4px;
-}
-</style>
-
 <?php
+session_start();
 #error_reporting(E_ERROR | E_PARSE);    // only major problems
 function sandbox_theme_display( $active_tab = '' ) {  
 ?>
@@ -424,7 +407,23 @@ function examples_callback() {
     });
 });
 </script>
-
+<style>
+.editbox
+{
+display:none
+}
+td
+{
+padding:5px;
+}
+.editbox
+{
+font-size:14px;
+width:auto;
+border:solid 1px #000;
+padding:4px;
+}
+</style>
 	<h3><a href="#">Add Category</a></h3>
 <div>
   <?php
@@ -621,6 +620,7 @@ function sandbox_wordlist_examples_callback() {
             var first=$("#first_input_"+ID).val();
             var dataString = 'id='+ID +'&word='+first;
             $("#first_"+ID).html;
+	    $("#first_"+ID).html('<img src="<?=plugins_url('scroll-loader.gif', __FILE__ )?>" width="30px" height="30px" />');
 
             if(first.length>0)
             {
@@ -655,10 +655,24 @@ function sandbox_wordlist_examples_callback() {
 });
 </script>
 
-
+<style>
+.editbox
+{
+display:none
+}
+td
+{
+padding:5px;
+}
+.editbox
+{
+font-size:14px;
+width:auto;
+border:solid 1px #000;
+padding:4px;
+}
+</style>
 	<?php
-	
-	$titledata = isset( $_POST['title_name'] ) ? $_POST['title_name'] : 0 ;
 	echo '<form method="post" action=""> ';
 
   	global $wpdb;
@@ -666,31 +680,45 @@ function sandbox_wordlist_examples_callback() {
 	$title = $wpdb->get_results( "SELECT id, title, sightwords FROM $table_name; ");
 
 	echo '<select id="title_name" name="title_name"  >';
-	echo '<option value="0" >Select Title</option>';
+	echo '<option disabled selected="selected" value="0" >Select Title</option>';
+
 		foreach ( $title as $title_data )
 		{
+		if ($_POST['title_name'] == $title_data->id) {
+        $selected =  ' selected="selected"';
+    	
+    } else {
+        $selected = '';
+    }
 	//$slide_effect = (get_option('title_name') == $title_data->id ) ? 'selected' : '';
 	//echo '<option value="'.$title_data->id .'" >' .$title_data->title .'</option>';
 	//$check_last = $wpdb->get_results( "SELECT id, title FROM $table_name ORDER BY id DESC LIMIT 0,1; ");
-	echo '<option value="'.$title_data->id .'" '.(($title_data->title==$check_last->title)? 'selected="selected"': '').' >' .$title_data->title .'</option>';
+	//echo '<option value="'.$title_data->id .'" '.(($title_data->id==$check_last->id)? 'selected="selected"': '').' >' .$title_data->title .'</option>';
 	//echo '<option value="'.$title_data->id .'" >' .$title_data->title .'</option>';
-	//echo '<option value="'.$title_data->id .'" '.selected( $options['foo'], $title_data->id ).'>' .$title_data->title .'</option>';	
+  	//echo '<option value="'.$title_data->id .'" '.selected( $options['foo'], $title_data->id ) .' >' .$title_data->title .'</option>';
+	echo "<option value='" .$title_data->id . "' ".$selected." >" .$title_data->title ."</option>";	
 	
 	}
-  		echo '</select>';
-		
-	
+	echo '</select>';
 	echo '<input type="submit" value="display words" class="button button-primary" name="display"  > ';
+	
 	echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-		if(isset($_POST["addword"] )&& $_POST["word"] != ''){
-		$title = $_POST['title_name'];
+		if(isset($_POST["addword"] )){
+		if ($_POST["word"] == '')  
+		{
+			print '<script type="text/javascript">'; 
+			print 'alert("No data")'; 
+			print '</script>';
+		}
+		else{
+		$title = $_SESSION['title']; 
 		$word = $_POST['word'];
 		$table_name = $wpdb->prefix . "word";
 		$wpdb->insert( $table_name, array( 'title_id' => $title, 'word' => $word ) );
 	?><div class="updated"><p><strong><?php _e('Saved', 'menu-test' ); ?></strong></p></div>
 	<?php
-        }else{
-	}
+        }
+        }
 	?>
  <?php
 
@@ -723,36 +751,58 @@ $columns = array(
  <?php //echo <body> ?>
   <tfoot>
 <?php
-	if(isset($_POST["display"] ) ){
-		$title = $_POST['title_name'];
-		$word = $_POST['word'];
-		$table_name = $wpdb->prefix . "word";
 
+	if(isset($_POST["display"] ) ){
+		//$title = $_POST['title_name'];
+		$_SESSION['title'] = $_POST['title_name'];
+		//$title=$_SESSION['title'];
+		$word = $_POST['word'];
+		//echo $title;
+		
 global $wpdb;
 $table_name = $wpdb->prefix . "word";
-$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = $title; ");
+$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id =" .$_SESSION['title']);
 		foreach ( $word_data as $wrd_data )
 		{
 		echo '<tr id="' . $wrd_data->id. '" class="edit_tr1"> <form method="POST">
 		<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
 		<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
-<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
-                <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
+		<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
+        <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
 		<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
 		</form></tr>';
 
 		}
+		
 		}
-
+		
 		if(isset($_POST["delword"] )){
 		global $wpdb;
                 $wordid = $_POST['id'];
                 $wpdb->query("DELETE FROM wp_word WHERE id = '" . $wordid . "';");
-		print "<script type=\"text/javascript\">"; 
-		print "alert('Record Deleted')"; 
-		print "</script>";  
+                
+     			echo $_SESSION['title'];
 
-}
+	
+		global $wpdb;
+		
+$table_name = $wpdb->prefix . "word";
+$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = ".$_SESSION['title']);
+		foreach ( $word_data as $wrd_data )
+		{
+		echo '<tr id="' . $wrd_data->id. '" class="edit_tr1"> <form method="POST">
+		<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
+		<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
+		<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
+        <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
+		<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
+		</form></tr>';
+
+		}
+
+		}
+		
+	
 
 ?>
   </tfoot>
@@ -761,6 +811,7 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 </div>
 </div>
 <?php
+
 }
 
 function sandbox_theme_initialize_social_examples() {  
