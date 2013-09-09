@@ -703,22 +703,7 @@ padding:4px;
 	echo '<input type="submit" value="display words" class="button button-primary" name="display"  > ';
 	
 	echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-		if(isset($_POST["addword"] )){
-		if ($_POST["word"] == '')  
-		{
-			print '<script type="text/javascript">'; 
-			print 'alert("No data")'; 
-			print '</script>';
-		}
-		else{
-		$title = $_SESSION['title']; 
-		$word = $_POST['word'];
-		$table_name = $wpdb->prefix . "word";
-		$wpdb->insert( $table_name, array( 'title_id' => $title, 'word' => $word ) );
-	?><div class="updated"><p><strong><?php _e('Saved', 'menu-test' ); ?></strong></p></div>
-	<?php
-        }
-        }
+		
 	?>
  <?php
 
@@ -776,6 +761,38 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 		}
 		
 		}
+		
+		if(isset($_POST["addword"] )){
+		if ($_POST["word"] == '')  
+		{
+			print '<script type="text/javascript">'; 
+			print 'alert("No data")'; 
+			print '</script>';
+		}
+		else{
+		$title = $_SESSION['title']; 
+		$word = $_POST['word'];
+		$table_name = $wpdb->prefix . "word";
+		$wpdb->insert( $table_name, array( 'title_id' => $title, 'word' => $word ) );
+		
+		global $wpdb;
+		
+			$table_name = $wpdb->prefix . "word";
+			$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = ".$_SESSION['title']);
+				foreach ( $word_data as $wrd_data )
+				{
+				echo '<tr id="' . $wrd_data->id. '" class="edit_tr1"> 
+				<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
+				<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
+				<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
+    		    <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
+				<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
+				</tr>';
+				}
+	?><div class="updated"><p><strong><?php _e('Saved', 'menu-test' ); ?></strong></p></div>
+	<?php
+        }
+        }
 		
 		if(isset($_POST["delword"] )){
 		global $wpdb;
