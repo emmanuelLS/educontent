@@ -107,6 +107,77 @@ if($(this).hasClass('inactive')){ //this is the start of our condition
 
 });
 </script>
+<script>
+function showUser(str)
+{
+if (str=="")
+  {
+  document.getElementById("seltitle").innerHTML="";
+  return;
+  } 
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("seltitle").innerHTML=xmlhttp.responseText;
+    }
+  }
+var url = "<?=plugins_url('subcateg.php', __FILE__ )?>";
+xmlhttp.open("GET",url+"?id="+str,true);
+xmlhttp.send();
+}
+</script>
+<script>
+function showprev(str)
+{
+if (str=="")
+  {
+  document.getElementById("preview").innerHTML="";
+  return;
+  } 
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("preview").innerHTML=xmlhttp.responseText;
+    }
+  }
+ 
+var url = "<?=plugins_url('preview.php', __FILE__ )?>";
+xmlhttp.open("GET",url+"?id="+str,true);
+xmlhttp.send();
+}
+</script>
+<script>
+  function check() {
+    var ind = document.getElementById('seltitle').selectedIndex;
+    var ctr = document.getElementById("selcateg").value;
+     if (ctr=="") {
+     alert("Select Category!");
+        }
+    else if (ind==0) {
+      alert("Select Title!");
+    }
+
+  }
+</script>
+
 <?php //==========================================FLASH CARDS =======================================================================
 error_reporting(E_ALL ^ E_NOTICE);
  ?>      	
@@ -116,13 +187,12 @@ error_reporting(E_ALL ^ E_NOTICE);
       <li><a href="#tab2">Graphic Organization Tables</a></li>
       <li><a href="#tab3">Graphic Organizations Templates</a></li>
 </ul>
-
 <div class="container" id="tab1">
         	<br/>
 			
            <h3> Flash Card Content </h3>
 
-		   <form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\flashcards.php" method="POST" enctype="multipart/form-data" >
+		   <form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\flashcards.php" method="POST" enctype="multipart/form-data" target="_blank")">
 		 	<table border="0">
 			<tbody>
 			<tr>
@@ -143,135 +213,82 @@ error_reporting(E_ALL ^ E_NOTICE);
 			
 			<tr>
 			<td><h4>Flash Card Category</h4></td>
-		<td>
-		  <?php
-  $db = new mysqli('localhost','levitan5_webdev','xR4OfBo41rzm','levitan5_esisswp');//set your database handler
-  $query = "SELECT id,category_name FROM wp_categoryname";
-  $result = $db->query($query);
-
-  while($row = $result->fetch_assoc()){
-    $categories[] = array("id" => $row['id'], "val" => $row['category_name']);
-  }
-
-  $query = "SELECT id, category_id, title FROM wp_title";
-  $result = $db->query($query);
-
-  while($row = $result->fetch_assoc()){
-    $subcats[$row['category_id']][] = array("id" => $row['id'], "val" => $row['title']);
-  }
-
-  $jsonCats = json_encode($categories);
-  $jsonSubCats = json_encode($subcats);
-
-?>
-
-<!docytpe html>
-<html>
-  <head>
-       <script type='text/javascript'>
-      <?php
-        echo "var categories = $jsonCats; \n";
-        echo "var subcats = $jsonSubCats; \n";
-     //   echo " $jsonCats";
-       // echo "$jsonSubCats";
-      ?>
-      function loadCategories(){
-        var select = document.getElementById("categoriesSelect");
-        select.onchange = updateSubCats;
-        for(var i = 0; i < categories.length; i++){
-          select.options[i] = new Option(categories[i].val,categories[i].id);          
-        }
-      }
-      function updateSubCats(){
-        var catSelect = this;
-        var catid = this.value;
-        var subcatSelect = document.getElementById("subcatsSelect");
-        subcatSelect.options.length = 0; //delete all options if any present
-        for(var i = 0; i < subcats[catid].length; i++){
-          subcatSelect.options[i] = new Option(subcats[catid][i].val,subcats[catid][i].id);
-        }
-      }
-    </script>
-  </head>
-  <body onload ='loadCategories()'>
-    <select id='categoriesSelect'>
-    </select>
-  </body>
-</html>
+			<td><select name="selcateg" id="selcateg" onchange="showUser(this.value)" >
+			<option value="">Select Category...</option>
+			<?php
+			$db = new mysqli('localhost','levitan5_webdev','xR4OfBo41rzm','levitan5_esisswp');//set your database handler
+			$query = "SELECT id,category_name FROM wp_categoryname";
+			$result = $db->query($query);
 		  
-		</td>
+			while($row = $result->fetch_assoc()){
+			  echo '<option value="'.$row['id'].'">' .$row['category_name']. '</option>';
+			}
+			?>
+			</select></td>
 		</tr>
 		  <tr>
 		  <td><h4>Flash Card Title</h4></td>
-		  <td> <select id='subcatsSelect'>
+		  <td><select id="seltitle" name="seltitle" onchange="showprev(this.value)">
     </select></td>
+<td><h4>Sightwords & Wordlists</h4></td>
+		  <td>
+		    <Script> 
+		    $(function() {    
+		     $('#divpreview').change(function(){
+			 $('.divprev').hide();
+			 $('#' + $(this).val()).show();
+		     });
+		 
+		 });       
+		  </Script>
+<Select id="divpreview" onclick ="check();">
+ <option value="hide_div">Hide</option>
+   <option value="show_div">Show</option>
+</Select>
+<div id="hide_div" class="divprev" style="display:none"></div>
+</td>
 	</tr> 
 	
 	</tbody>
 	</table>
 	<br/>	
-<div id="show_div" name="show_div" style=" margin:12px;padding:12px;
+<div id="show_div" class="divprev" name="show_div" style=" margin:12px;padding:12px;
       border:2px solid #666;
       width:565px;
       height:530px; display: none;"> 
-	<h3>SIGHTWORDS</h3>  
-	<style>textarea{  resize:none } 
-	textarea#styled {
-	width: 300px;
-	height: 50px;
-	border: 3px solid #cccccc;
-	padding: 5px;
-	font-family: Tahoma, sans-serif;
-	background-image: url(bg.gif);
-	background-position: bottom right;
-	background-repeat: no-repeat;
-	}
-	
 	</style>
-	<?php	
-	global $wpdb;
-		//$title = $_POST['fdwtitle'];
-		$count = $wpdb->get_var( "SELECT COUNT(word) FROM wp_word WHERE title_id = 1 ");
-		echo $count->word;
 
-		$titleword  = 2;
-		//$options = array( 1=>'General Question', 'Company Information', 'Customer Issue', 'Supplier Issue', 'Supplier Issue', 'Request For Quote', 'Other' );
-		
+		<?php	
+	/*	global $wpdb;
+		$count = $wpdb->get_var( "SELECT COUNT(word) FROM wp_word");
 		$wordslist = $wpdb->get_results("SELECT id, word FROM wp_word WHERE title_id = $titleword ");
 		echo $wordslist->word;
 		$sightwords = $wpdb->get_results("SELECT sightwords FROM wp_title WHERE id = $titleword  ");
-		echo $sight->sightword;
+		//echo $sightwords->sightword;
 		foreach ( $sightwords as $sight )  
 		{
 		echo '<textarea maxlength="45" id="styled" name="sightwords" value="' . $sight->sightwords. '">'. $sight->sightwords .'</textarea>';
 		echo $sight->sightword;
-		}
+		}  */
 	?>
 
-	<div id="accordion">
-	<h3><a href="#">WORD LISTS</a></h3> 
-	</div>
-	<?php		
-		foreach ( $wordslist as $wordslist2 )
-		{		 
-		echo '<input type="checkbox" name="words[]" value="'.$wordslist2->word.'">'.$wordslist2->word;
-		echo '<br />';
-		}	
+	<?php
+	       echo '<div id ="preview"></div>';
 	?>
 	</div>
 				<script>
-				document.getElementById('fdwtest').addEventListener('change', function () {
+		       /*	document.getElementById('seltitle').addEventListener('change', function () {
 				var style = this.value != "" ? 'block' : 'none';
 				document.getElementById('show_div').style.display = style;
 				//$('#hidden_div').load('wp-content\plugins\wordwork\admin\templates\qdiv.php #test');
-				});
+				});   */
 
 				</script>
 				
 			<p><center><input type="submit" name="submit" value="View/Generate PDF"/> &nbsp; <input type="submit" name="save" value="Save Project"/></p>			
 			</form>		
 <?php
-		if(isset($_POST["submit"] )){ 	
+		if(isset($_POST["save"] )){ 	
 		$projectname = $_POST['project_name'];
 		$table_name = $wpdb->prefix . "project";
 		$wpdb->insert( $table_name, array( 'project_name' => $projectname) );		
@@ -284,8 +301,8 @@ error_reporting(E_ALL ^ E_NOTICE);
 <div class="container" id="tab2">
                    
             <h3> Graphic Organization Content Table Format</h3>
-			 <form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\forGraphOrg.php" method="post" enctype="multipart/form-data">
-			<table style="cellpadding:50px>
+			 <form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\forGraphOrg.php" method="post" enctype="multipart/form-data" target="_blank">
+			<table style="cellpadding:50px">
 			<tbody>
 			<tr>
 			<td><h4>Project Name</h4></td>
@@ -320,7 +337,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 			</select></td> 
 			
 			<td><h4>Rows</h4></td>
-			<td><input id = "test2" type="number" name="rows" min="1" max="12" step="1" value=""/></td>
+			<td><input id = "test2" type="number" name="rows" min="2" max="12" step="1" value=""/></td>
 			
 			</tr>
 			</tbody>
@@ -389,7 +406,7 @@ if(isset($_POST["gen"] )){
 <?php  //=============================================GRAPHIC ORG FILLABLE TEMPLATE =================== ?>    		 
 <div class="container" id="tab3">
 					<h3> Graphic Organization Content Fillable Templates</h3>
-					<form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\forGraphicTemp.php" method="post" enctype="multipart/form-data">
+					<form action="wp-content\plugins\wordwork\admin\templates\tcpdf\samp\forGraphicTemp.php" method="post" enctype="multipart/form-data" target="_blank">
 					
 					<table style="cellpadding:50px">
 					<tbody>
