@@ -786,19 +786,18 @@ $word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_i
 	
 		global $wpdb;
 		
-$table_name = $wpdb->prefix . "word";
-$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = ".$_SESSION['title']);
-		foreach ( $word_data as $wrd_data )
-		{
-		echo '<tr id="' . $wrd_data->id. '" class="edit_tr1"> <form method="POST">
-		<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
-		<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
-		<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
-        <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
-		<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
-		</form></tr>';
-
-		}
+			$table_name = $wpdb->prefix . "word";
+			$word_data = $wpdb->get_results( "SELECT id, word FROM $table_name WHERE title_id = ".$_SESSION['title']);
+				foreach ( $word_data as $wrd_data )
+				{
+				echo '<tr id="' . $wrd_data->id. '" class="edit_tr1"> <form method="POST">
+				<td><input type = "checkbox" value="'.$wrd_data->id .'" ></td>
+				<td class="edit_td1"><span id="first_'.$wrd_data->id.'" class="text">' .$wrd_data->word .'</span>
+				<input type="text" value="'.$wrd_data->word .'" class="editbox" id="first_input_'.$wrd_data->id.'"></td>
+    		    <td><input type="submit" value="Delete" class="button button-primary" name="delword" onclick="return confirm(\'Confirm Delete?\');" /></td>
+				<input type="hidden" name="id" value="'.$wrd_data->id.'"/>
+				</form></tr>';
+				}
 
 		}
 		
